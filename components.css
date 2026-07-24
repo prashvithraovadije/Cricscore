@@ -1,0 +1,77 @@
+  .btn { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; padding: 8px 18px; border-radius: var(--r-sm); border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #FF8533; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface3); color: var(--text); border: 1px solid var(--border); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--surface2); }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); background: var(--surface2); }
+  .btn-sm { font-size: 13px; padding: 5px 12px; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-green { background: var(--green); color: #000; }
+
+  /* RIGHT PANEL TABS */
+  .right-tab { flex: 1; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: var(--font-display); font-size: 12px; font-weight: 600; padding: 10px 6px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
+  .right-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .right-tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* PLAYER STATS TABLE */
+  .ps-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ps-table th { background: var(--surface2); color: var(--text-dim); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); }
+  .ps-table th:first-child { text-align: left; }
+  .ps-table td { padding: 7px 8px; border-bottom: 1px solid rgba(36,48,80,0.5); text-align: right; vertical-align: middle; }
+  .ps-table td:first-child { text-align: left; }
+  .ps-table tr:hover td { background: rgba(255,107,0,0.04); cursor: pointer; }
+
+
+  /* MILESTONE BANNER */
+  .milestone-banner {
+    position: fixed; top: -110px; left: 50%; transform: translateX(-50%);
+    z-index: 9999; background: linear-gradient(135deg, #FF6B00 0%, #FFD700 100%);
+    color: #000; font-family: var(--font-display); font-size: 18px; font-weight: 700;
+    padding: 14px 36px; border-radius: 50px; text-align: center;
+    box-shadow: 0 8px 40px rgba(255,107,0,0.6); transition: top 0.45s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap; pointer-events: none; letter-spacing: 0.5px; max-width: 90vw;
+    white-space: normal; text-align: center;
+  }
+  .milestone-banner.show { top: 68px; }
+
+
+  /* TOAST (quick non-blocking notices — replaces alert() in the scoring flow) */
+  .toast-banner {
+    position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+    z-index: 9999; background: var(--surface3); color: var(--text);
+    border: 1px solid var(--border); font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    padding: 12px 22px; border-radius: 12px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.45); transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none; max-width: 90vw;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+  .toast-banner.show { bottom: 24px; }
+  .toast-banner.warn { border-color: var(--red); color: var(--red); }
+
+
+  .team-rec-date { font-size:10px; color:var(--text-dim); margin-top:3px; }
+  .designed-by {
+    position: fixed;
+    bottom: 10px;
+    right: 14px;
+    z-index: 200;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    opacity: 0.85;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+  .designed-by span { color: var(--accent); font-weight: 600; }
+  @media (max-width: 640px) {
+    .designed-by { font-size: 9.5px; padding: 4px 9px; bottom: 6px; right: 6px; }
+  }
+

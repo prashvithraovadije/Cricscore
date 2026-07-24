@@ -1,0 +1,6 @@
+  @media (max-width: 900px) {
+    .match-body { grid-template-columns: 1fr; }
+    .col-panel { border-right: none; border-bottom: 1px solid var(--border); height: auto; max-height: 60vh; }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+

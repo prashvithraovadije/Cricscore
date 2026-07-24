@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crickscorer — Live Cricket Scorer | by Vadije Prashvith Nandan Rao</title>
+<meta name="description" content="Crickscorer is a free live cricket scoring app for matches, tournaments and series — track runs, wickets, overs, stats and records in real time. Designed and built by Vadije Prashvith Nandan Rao.">
+<meta name="author" content="Vadije Prashvith Nandan Rao">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A0E1A'/%3E%3Ctext x='50' y='68' font-family='Arial,sans-serif' font-size='48' font-weight='700' fill='%23FF6B00' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E">
+
+<!-- Open Graph / Social Share -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Crickscorer — Live Cricket Scorer">
+<meta property="og:description" content="A free live cricket scoring app — track runs, wickets, overs, stats and records in real time. Designed by Vadije Prashvith Nandan Rao.">
+<meta property="og:url" content="https://crickscorer.netlify.app/">
+<meta property="og:site_name" content="Crickscorer">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Crickscorer — Live Cricket Scorer">
+<meta name="twitter:description" content="Score live cricket matches, track stats and records. Designed by Vadije Prashvith Nandan Rao.">
+
+<!-- Structured Data: ties this app to the author's name for search engines -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Crickscorer",
+  "url": "https://crickscorer.netlify.app/",
+  "applicationCategory": "SportsApplication",
+  "operatingSystem": "Any",
+  "description": "A free live cricket scoring app for matches, tournaments and series with real-time stats and records.",
+  "author": {
+    "@type": "Person",
+    "name": "Vadije Prashvith Nandan Rao"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Vadije Prashvith Nandan Rao"
+  }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Stylesheets: order matters (variables first, responsive last) -->
+<link rel="stylesheet" href="./css/variables.css">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/setup.css">
+<link rel="stylesheet" href="./css/match.css">
+<link rel="stylesheet" href="./css/history.css">
+<link rel="stylesheet" href="./css/stats.css">
+<link rel="stylesheet" href="./css/series.css">
+<link rel="stylesheet" href="./css/modals.css">
+<link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+
+<div class="designed-by">Designed by <span>Vadije Prashvith Nandan Rao</span></div>
+
+<header>
+  <div class="logo">Crick<span>scorer</span></div>
+  <div class="header-badge">Live</div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" id="themeToggleBtn" onclick="toggleTheme()" title="Switch theme">🌙 <span class="btn-label" id="themeToggleLabel">Dark</span></button>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('statsScreen')" title="Stats">📊 <span class="btn-label">Stats</span></button>
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('historyScreen')" title="History">📋 <span class="btn-label">History</span></button>
+    <button class="btn btn-ghost btn-sm" id="headerSeriesBtn" onclick="goToSeriesScreen()" style="display:none" title="Series">🏆 <span class="btn-label">Series</span></button>
+    <button class="btn btn-secondary btn-sm" onclick="showScreen('setupScreen')" title="New Match">+ <span class="btn-label">New Match</span></button>
+    <div id="authArea" style="display:flex;align-items:center;gap:8px;"></div>
+  </div>
+</header>
+
+<!-- SETUP -->
+<datalist id="knownPlayersList"></datalist>
+<div id="setupScreen" class="screen">
+  <div class="setup-container">
+    <div class="setup-title">New Match Setup</div>
+    <div class="setup-subtitle">Configure teams, players, overs and coin toss before the game begins</div>
+    <div class="setup-grid">
+      <div class="card">
+        <div class="card-title">🏏 Team A</div>
+        <div class="form-group">
+          <label class="form-label">Team Name</label>
+          <input class="form-input" id="teamAName" value="Team Alpha" placeholder="e.g. Mumbai Indians">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Players</label>
+          <div class="player-list" id="teamAList"></div>
+          <div class="add-player-row">
+            <input class="form-input" id="teamAPlayerInput" list="knownPlayersList" placeholder="Player name" onkeydown="if(event.key==='Enter')addPlayer('A')">
+            <button class="btn btn-primary btn-sm" onclick="addPlayer('A')">Add</button>
+          </div>
+          <div class="quick-players" id="teamAQuickPlayers"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="fillDefault('A')" style="width:100%;margin-top:4px">Fill sample lineup</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🎯 Team B</div>
+        <div class="form-group">
+          <label class="form-label">Team Name</label>
+          <input class="form-input" id="teamBName" value="Team Beta" placeholder="e.g. Chennai Super Kings">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Players</label>
+          <div class="player-list" id="teamBList"></div>
+          <div class="add-player-row">
+            <input class="form-input" id="teamBPlayerInput" list="knownPlayersList" placeholder="Player name" onkeydown="if(event.key==='Enter')addPlayer('B')">
+            <button class="btn btn-primary btn-sm" onclick="addPlayer('B')">Add</button>
+          </div>
+          <div class="quick-players" id="teamBQuickPlayers"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="fillDefault('B')" style="width:100%;margin-top:4px">Fill sample lineup</button>
+      </div>
+    </div>
+    <div class="overs-row" id="formatRow" style="flex-direction:column;align-items:stretch;gap:12px">
+      <div class="overs-label">🎚️ Match Format</div>
+      <div class="series-type-grid" id="matchFormatGrid" style="grid-template-columns:1fr 1fr">
+        <div class="series-type-btn selected" onclick="selectMatchFormat('limited')" id="mfmt-limited">
+          <div class="stb-label">Limited Overs</div>
+          <div class="stb-sub">T20 / ODI style · 1 innings each</div>
+        </div>
+        <div class="series-type-btn" onclick="selectMatchFormat('test')" id="mfmt-test">
+          <div class="stb-label">Test Match</div>
+          <div class="stb-sub">2 innings each · no overs limit</div>
+        </div>
+      </div>
+    </div>
+    <div class="overs-row" id="oversRow">
+      <div class="overs-label">🕐 Overs per Innings</div>
+      <div class="overs-control">
+        <button class="overs-btn" onclick="changeOvers(-1)">−</button>
+        <div id="oversDisplay">20</div>
+        <button class="overs-btn" onclick="changeOvers(1)">+</button>
+      </div>
+    </div>
+    <div class="overs-row" id="testInfoRow" style="display:none">
+      <div style="flex:1">
+        <div class="overs-label">🏏 Test Match Rules</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Each side bats twice. Innings ends only when all out or declared. The side batting 3rd may be enforced to follow-on if they trail by a wide margin. Result is decided on aggregate runs, by an innings, or as a tie.</div>
+      </div>
+    </div>
+    <div class="overs-row">
+      <div style="flex:1">
+        <div class="overs-label">🏏 Single Batting</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">If a team has few players, the last one keeps batting alone instead of the innings ending early</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="singleBattingToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <!-- SERIES MODE -->
+    <div class="series-mode-toggle" id="seriesModePanel">
+      <div class="series-mode-header">
+        <span style="font-size:22px">🏆</span>
+        <div style="flex:1">
+          <div class="series-mode-title">Series Mode</div>
+          <div class="series-mode-desc">Run a Tri-Series or a full 5-match series with automatic scheduling, points table &amp; NRR</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="seriesModeToggle" onchange="onSeriesModeToggle()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="series-config" id="seriesConfig">
+        <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:10px">Series Format</div>
+        <div class="series-type-grid" id="seriesTypeGrid">
+          <div class="series-type-btn" onclick="selectSeriesType('tri')" id="stype-tri">
+            <div class="stb-label">Tri-Series</div>
+            <div class="stb-sub">3 Teams · 6 Matches</div>
+          </div>
+          <div class="series-type-btn" onclick="selectSeriesType('bi3')" id="stype-bi3">
+            <div class="stb-label">Best of 3</div>
+            <div class="stb-sub">2 Teams · 3 Matches</div>
+          </div>
+          <div class="series-type-btn" onclick="selectSeriesType('bi5')" id="stype-bi5">
+            <div class="stb-label">5-Match Series</div>
+            <div class="stb-sub">2 Teams · 5 Matches</div>
+          </div>
+          <div class="series-type-btn" onclick="selectSeriesType('bi7')" id="stype-bi7">
+            <div class="stb-label">7-Match Series</div>
+            <div class="stb-sub">2 Teams · 7 Matches</div>
+          </div>
+        </div>
+        <div id="triTeamConfig" style="display:none">
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px">Third Team Name</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" id="teamCName" value="Team Gamma" placeholder="3rd team name" style="max-width:260px">
+            <div style="font-size:12px;color:var(--text-muted)">Batting order same as Team A</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);border-left:3px solid var(--accent)">
+          <div style="font-size:12px;color:var(--text-muted)" id="seriesFormatDesc">Select a format above</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toss-card" id="tossCardOuter">
+      <div class="toss-title">⚖️ Coin Toss</div>
+      <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">Click the coin to flip — winner chooses bat or bowl</div>
+      <div class="coin-wrap">
+        <div class="coin" id="coinEl" onclick="flipCoin()">
+          <div class="coin-face coin-heads">H</div>
+          <div class="coin-face coin-tails">T</div>
+        </div>
+      </div>
+      <div id="tossResult" class="toss-result"></div>
+      <div class="toss-choice hidden" id="tossChoice">
+        <button class="btn btn-primary" onclick="chooseBat()">🏏 Bat First</button>
+        <button class="btn btn-secondary" onclick="chooseBowl()">🎯 Bowl First</button>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <button class="btn btn-primary" style="font-size:18px;padding:14px 40px;letter-spacing:1px" id="startMatchBtn" onclick="startMatch()">Start Match →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH -->
+<div id="matchScreen" class="screen">
+  <div class="match-header">
+    <div class="innings-badge" id="inningsBadge">1st Innings</div>
+    <div class="match-score-display" id="headerScore">0/0</div>
+    <div class="match-over-display" id="headerOvers">(0.0 ov)</div>
+    <div class="target-badge hidden" id="targetBadge">Target: —</div>
+    <div class="target-badge" id="crrBadge" style="background:var(--surface3);color:var(--text-muted)">CRR: 0.00</div>
+    <div class="target-badge hidden" id="partnershipBadge" style="background:var(--surface3);color:var(--text-muted)">P'ship: 0(0)</div>
+    <div class="target-badge hidden" id="winProbBadge" style="background:var(--surface3);color:var(--text-muted)">Win%: —</div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" id="voiceScoringBtn" onclick="toggleVoiceScoring()" title="Say &quot;four&quot;, &quot;wicket&quot;, &quot;change bowler&quot;, &quot;undo&quot;, etc.">🎙️ Voice</button>
+      <button class="btn btn-ghost btn-sm" onclick="openVoiceSettings()" title="Voice settings">⚙️</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleVoiceTestConsole()" title="Type commands to test voice logic without a mic">⌨️ Test</button>
+      <button class="btn btn-ghost btn-sm" onclick="undoLastBall()">↩ Undo</button>
+      <button class="btn btn-danger btn-sm" onclick="promptEndInnings()">End Innings</button>
+    </div>
+  </div>
+  <div id="voiceCaption" class="voice-caption hidden"></div>
+  <div class="voice-test-console hidden" id="voiceTestConsole">
+    <input type="text" id="voiceTestInput" placeholder="Type what you'd say, e.g. &quot;four&quot; or &quot;wicket&quot;…"
+      onkeydown="if(event.key==='Enter') runVoiceTest()">
+    <button class="btn btn-primary btn-sm" onclick="runVoiceTest()">Send</button>
+  </div>
+
+  <div class="match-body">
+    <!-- LEFT -->
+    <div class="col-panel">
+      <!-- Select Batsmen -->
+      <div class="panel-section" id="selectBatsmenSection">
+        <div class="panel-label">Select Opening Batsmen</div>
+        <div class="select-panel">
+          <div class="select-panel-title">Striker (Face First Ball)</div>
+          <div class="select-list" id="strikerSelectList"></div>
+        </div>
+        <div class="select-panel" id="nonStrikerPanel">
+          <div class="select-panel-title">Non-Striker</div>
+          <div class="select-list" id="nonStrikerSelectList"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="confirmBatsmen()">Confirm Batsmen</button>
+      </div>
+      <!-- Select Bowler -->
+      <div class="panel-section hidden" id="selectBowlerSection">
+        <div class="panel-label">Select Bowler</div>
+        <div class="select-panel">
+          <div class="select-panel-title">This Over's Bowler</div>
+          <div class="select-list" id="bowlerSelectList"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="confirmBowler()">Confirm Bowler</button>
+      </div>
+      <!-- Next Batsman -->
+      <div class="panel-section hidden" id="selectNextBatsmanSection">
+        <div class="panel-label" style="color:var(--red)">🚨 Wicket! Send in Next Batsman</div>
+        <div class="select-panel">
+          <div class="select-panel-title">Incoming Batsman</div>
+          <div class="select-list" id="nextBatsmanSelectList"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="confirmNextBatsman()">Send In</button>
+      </div>
+      <!-- Live Cards -->
+      <div class="panel-section hidden" id="liveScoringSection">
+        <div class="panel-label">At the Crease</div>
+        <div class="batsman-card">
+          <div class="batsman-name"><span class="striker-dot"></span><span id="strikerName">—</span></div>
+          <div class="batsman-stats-row">
+            <div class="bs-stat"><span class="bs-val" id="strikerRuns">0</span><span class="bs-lbl">Runs</span></div>
+            <div class="bs-stat"><span class="bs-val" id="strikerBalls">0</span><span class="bs-lbl">Balls</span></div>
+            <div class="bs-stat"><span class="bs-val" id="strikerFours">0</span><span class="bs-lbl">4s</span></div>
+            <div class="bs-stat"><span class="bs-val" id="strikerSixes">0</span><span class="bs-lbl">6s</span></div>
+            <div class="bs-stat"><span class="bs-val" id="strikerSR">0.0</span><span class="bs-lbl">SR</span></div>
+          </div>
+        </div>
+        <div class="batsman-card non-striker" id="nonStrikerCard">
+          <div class="batsman-name"><span id="nonStrikerName">—</span></div>
+          <div class="batsman-stats-row">
+            <div class="bs-stat"><span class="bs-val" id="nsRuns">0</span><span class="bs-lbl">Runs</span></div>
+            <div class="bs-stat"><span class="bs-val" id="nsBalls">0</span><span class="bs-lbl">Balls</span></div>
+            <div class="bs-stat"><span class="bs-val" id="nsSR">0.0</span><span class="bs-lbl">SR</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Bowler -->
+      <div class="panel-section hidden" id="liveBowlerSection">
+        <div class="panel-label">Bowling</div>
+        <div class="bowler-card">
+          <div class="bowler-name" id="bowlerNameDisplay">—</div>
+          <div class="batsman-stats-row">
+            <div class="bs-stat"><span class="bs-val" id="bowlerOvers">0.0</span><span class="bs-lbl">Overs</span></div>
+            <div class="bs-stat"><span class="bs-val" id="bowlerRuns">0</span><span class="bs-lbl">Runs</span></div>
+            <div class="bs-stat"><span class="bs-val" id="bowlerWickets">0</span><span class="bs-lbl">Wkts</span></div>
+            <div class="bs-stat"><span class="bs-val" id="bowlerMaidens">0</span><span class="bs-lbl">Maid</span></div>
+            <div class="bs-stat"><span class="bs-val" id="bowlerEcon">0.0</span><span class="bs-lbl">Econ</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Over dots -->
+      <div class="panel-section hidden" id="overProgressSection">
+        <div class="over-wheel-wrap">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px" id="overLabel">Over 1</div>
+          <div class="over-dots" id="overDots"></div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:4px" id="overRunsLabel">0 runs this over</div>
+        </div>
+      </div>
+      <!-- Ball buttons -->
+      <div class="panel-section hidden" id="ballButtonsSection">
+        <div class="panel-label">Ball Result</div>
+        <div class="ball-grid">
+          <button class="ball-btn bb-0" onclick="recordBall('0')">0</button>
+          <button class="ball-btn bb-1" onclick="recordBall('1')">1</button>
+          <button class="ball-btn bb-2" onclick="recordBall('2')">2</button>
+          <button class="ball-btn bb-3" onclick="recordBall('3')">3</button>
+          <button class="ball-btn bb-4" onclick="recordBall('4')">4</button>
+          <button class="ball-btn bb-6" onclick="recordBall('6')">6</button>
+          <button class="ball-btn bb-W" onclick="recordBall('W')">W</button>
+          <button class="ball-btn bb-Wd" onclick="recordBall('Wd')">Wide</button>
+          <button class="ball-btn bb-Nb" onclick="recordBall('Nb')">No Ball</button>
+          <button class="ball-btn bb-Bye" onclick="recordBall('Bye')">Bye</button>
+          <button class="ball-btn bb-LB" onclick="recordBall('LB')">Leg B</button>
+          <button class="ball-btn bb-5" onclick="recordBall('5')">5</button>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim)">
+          <span>0 = dot · 4/6 = boundary · W = wicket</span>
+        </div>
+        <button class="btn btn-secondary btn-sm hidden" id="declareBtn" style="width:100%;margin-top:10px" onclick="confirmDeclareInnings()">🏳️ Declare Innings</button>
+      </div>
+    </div>
+
+    <!-- MIDDLE (Scorecard + Commentary) -->
+    <div class="col-panel">
+      <div class="section-head" id="battingTeamHead">Batting Scorecard</div>
+      <div style="overflow-x:auto">
+        <table class="scorecard-table" id="battingTable">
+          <thead><tr><th style="min-width:130px">Batsman</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+          <tbody id="battingTbody"></tbody>
+        </table>
+      </div>
+      <div style="padding:8px 10px;background:var(--surface2);font-size:13px;color:var(--text-muted)" id="extrasRow">Extras: 0</div>
+
+      <div class="section-head" style="color:var(--accent3);margin-top:4px">Bowling</div>
+      <div style="overflow-x:auto;padding-bottom:8px">
+        <table class="scorecard-table">
+          <thead><tr><th style="min-width:130px">Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Econ</th></tr></thead>
+          <tbody id="bowlingTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-head" style="color:var(--text-muted)">Ball-by-Ball Commentary</div>
+      <div class="commentary-wrap" id="commentaryWrap">
+        <div class="empty-state">Commentary appears as you score each ball</div>
+      </div>
+    </div>
+
+    <!-- RIGHT (Records + Player Stats) -->
+    <div class="col-panel records-panel">
+      <!-- Tab Header -->
+      <div style="display:flex;border-bottom:1px solid var(--border);background:var(--surface2)">
+        <button id="tabRecords" class="right-tab active" onclick="switchRightTab('records')">📊 Records</button>
+        <button id="tabPlayerStats" class="right-tab" onclick="switchRightTab('player-stats')">👤 Player Stats</button>
+      </div>
+
+      <!-- RECORDS PANEL -->
+      <div id="rightRecordsPanel">
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:2px">Records</div>
+        <div style="font-size:11px;color:var(--text-dim)">All-time across matches</div>
+      </div>
+      <!-- Individual / Team sub-tabs -->
+      <div class="rec-tab-bar">
+        <button class="rec-tab active" id="recSubTabSingle" onclick="switchRecSubTab('single')">🏏 Individual</button>
+        <button class="rec-tab" id="recSubTabTeam" onclick="switchRecSubTab('team')">🛡️ Team</button>
+      </div>
+
+      <!-- Test / Normal format toggle — every list below is tracked separately
+           per format, so this switches which dataset is shown. -->
+      <div class="rec-tab-bar" style="border-top:1px solid var(--border)">
+        <button class="rec-tab active" id="recFmtTabNormal" onclick="switchRecFormatTab('normal')">🏏 Normal</button>
+        <button class="rec-tab" id="recFmtTabTest" onclick="switchRecFormatTab('test')">🎩 Test</button>
+      </div>
+
+      <!-- Individual sub-panel -->
+      <div id="recIndividualPanel">
+      <div class="records-section">
+        <div class="rec-title">Match Highlights</div>
+        <div id="matchHighlightsList"><div class="empty-state" style="padding:8px">Stats appear as you play</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Highest Scores</div>
+        <div id="recHighestScores"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Best Partnerships</div>
+        <div id="recBestPartnerships"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Sixes</div>
+        <div id="recMostSixes"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Fours</div>
+        <div id="recMostFours"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Twos (2s)</div>
+        <div id="recMostTwos"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Singles (1s)</div>
+        <div id="recMostOnes"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Fastest 50</div>
+        <div id="recFastest50"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Fastest 100</div>
+        <div id="recFastest100"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Best Strike Rate <span style="font-size:9px;color:var(--text-dim)">(min 5 balls)</span></div>
+        <div id="recHighestSR"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Maidens</div>
+        <div id="recMostMaidens"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Most Runs (Career)</div>
+        <div id="recMostRuns"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div style="padding:14px">
+        <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="showTeamPickerForPlayer()">👤 View Player Profile</button>
+      </div>
+      </div><!-- end recIndividualPanel -->
+
+      <!-- Team sub-panel -->
+      <div id="recTeamPanel" style="display:none">
+      <div class="records-section">
+        <div class="rec-title">Highest Team Score</div>
+        <div id="recTeamHighestScore"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Highest Successful Chase</div>
+        <div id="recTeamHighestChase"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Lowest Score</div>
+        <div id="recTeamLowestScore"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      <div class="records-section">
+        <div class="rec-title">Lowest Score Defended</div>
+        <div id="recTeamLowestDefended"><div style="padding:8px;font-size:11px;color:var(--text-dim)">—</div></div>
+      </div>
+      </div><!-- end recTeamPanel -->
+
+      </div><!-- end rightRecordsPanel -->
+
+      <!-- PLAYER STATS PANEL -->
+      <div id="rightPlayerStatsPanel" style="display:none">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+          <div style="font-family:var(--font-display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-dim);margin-bottom:8px">This Match — Select Team</div>
+          <div style="display:flex;gap:6px">
+            <button id="psTabA" class="btn btn-primary btn-sm" onclick="switchPSTeam('A')" style="flex:1">Team A</button>
+            <button id="psTabB" class="btn btn-ghost btn-sm" onclick="switchPSTeam('B')" style="flex:1">Team B</button>
+          </div>
+        </div>
+        <div id="playerStatsContent"><div class="empty-state">Start a match to see player stats</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS & RECORDS SCREEN -->
+<div id="statsScreen" class="screen">
+  <div style="max-width:1200px;margin:0 auto;padding:24px">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap">
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:700">📊 Records &amp; Stats</div>
+      <button class="btn btn-primary btn-sm" onclick="showScreen('setupScreen')">+ New Match</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="showScreen('historyScreen')">📋 History</button>
+    </div>
+
+    <!-- Top-level tabs: Single / Team / Career -->
+    <div class="rec-tab-bar" style="margin-bottom:12px;border-radius:var(--r) var(--r) 0 0;overflow:hidden">
+      <button class="rec-tab active" id="statsTabSingle" onclick="switchStatsTab('single')">🏏 Individual Records</button>
+      <button class="rec-tab" id="statsTabTeam" onclick="switchStatsTab('team')">🛡️ Team Records</button>
+      <button class="rec-tab" id="statsTabCareer" onclick="switchStatsTab('career')">👤 Career Stats</button>
+    </div>
+
+    <!-- Test / Normal format toggle — applies across all three tabs above,
+         since every record and career figure is tracked separately per format. -->
+    <div class="rec-tab-bar" style="margin-bottom:20px;border-radius:var(--r);overflow:hidden;max-width:320px">
+      <button class="rec-tab active" id="statsFmtTabNormal" onclick="switchStatsFormatTab('normal')">🏏 Normal</button>
+      <button class="rec-tab" id="statsFmtTabTest" onclick="switchStatsFormatTab('test')">🎩 Test</button>
+    </div>
+
+    <!-- INDIVIDUAL RECORDS PANEL -->
+    <div id="statsIndividualPanel">
+      <div class="stats-grid">
+        <div>
+          <div class="stats-card" style="margin-bottom:16px">
+            <div class="stats-card-head" style="color:var(--accent)">🏆 All-Time Individual Records</div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Highest Scores</div>
+              <div id="sRecHighestScores"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Most Sixes</div>
+              <div id="sRecMostSixes"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Most Fours</div>
+              <div id="sRecMostFours"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Most Twos (2s)</div>
+              <div id="sRecMostTwos"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Most Singles (1s)</div>
+              <div id="sRecMostOnes"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Fastest 50</div>
+              <div id="sRecFastest50"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Fastest 100</div>
+              <div id="sRecFastest100"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px">
+              <div class="rec-title">Best Strike Rate <span style="font-size:9px;color:var(--text-dim)">(min 5 balls)</span></div>
+              <div id="sRecHighestSR"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="stats-card">
+            <div class="stats-card-head" style="color:var(--accent2)">📈 Most Runs (Career)</div>
+            <div style="padding:12px 14px">
+              <div id="sRecMostRuns"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM RECORDS PANEL -->
+    <div id="statsTeamPanel" style="display:none">
+      <div class="stats-grid">
+        <div>
+          <div class="stats-card">
+            <div class="stats-card-head" style="color:var(--accent)">🏏 Batting Records</div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Highest Team Score</div>
+              <div id="sTeamHighestScore"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Highest Successful Chase</div>
+              <div id="sTeamHighestChase"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px">
+              <div class="rec-title">Lowest Score</div>
+              <div id="sTeamLowestScore"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="stats-card">
+            <div class="stats-card-head" style="color:var(--accent3)">🎯 Bowling Records</div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <div class="rec-title">Lowest Score Defended</div>
+              <div id="sTeamLowestDefended"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+            <div style="padding:12px 14px">
+              <div class="rec-title">Most Maidens</div>
+              <div id="sRecMostMaidens"><div class="empty-state" style="padding:6px">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAREER STATS PANEL -->
+    <div id="statsCareerPanel" style="display:none">
+      <div class="stats-card">
+        <div class="stats-card-head" style="color:var(--accent2)">👤 Player Career Stats</div>
+        <div class="career-toolbar">
+          <input type="text" id="careerSearchInput" class="career-search-input" placeholder="🔍 Search player by name…" oninput="onCareerSearchInput(this.value)">
+          <select id="careerYearSelect" class="career-search-input" style="flex:0 0 140px" onchange="onCareerYearChange(this.value)">
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <div class="career-filter-row" id="careerFilterRow">
+          <button class="career-chip active" data-filter="all" onclick="setCareerFilter('all')">All Players</button>
+          <button class="career-chip" data-filter="batters" onclick="setCareerFilter('batters')">🏏 Batters</button>
+          <button class="career-chip" data-filter="bowlers" onclick="setCareerFilter('bowlers')">🎯 Bowlers</button>
+          <button class="career-chip" data-filter="allrounders" onclick="setCareerFilter('allrounders')">🌀 All-rounders</button>
+          <button class="career-chip" data-filter="topRuns" onclick="setCareerFilter('topRuns')">🏏 Highest Runs</button>
+          <button class="career-chip" data-filter="topWickets" onclick="setCareerFilter('topWickets')">🎯 Highest Wickets</button>
+          <button class="career-chip" data-filter="topSixes" onclick="setCareerFilter('topSixes')">💥 Most Sixes</button>
+          <button class="career-chip" data-filter="topHundreds" onclick="setCareerFilter('topHundreds')">💯 Most Hundreds</button>
+          <button class="career-chip" data-filter="topPOTM" onclick="setCareerFilter('topPOTM')">🏆 Most POTM</button>
+          <button class="career-chip" onclick="openHeadToHead()">⚔️ Head-to-Head</button>
+        </div>
+        <div class="career-result-count" id="careerResultCount"></div>
+        <div id="statsPlayerCareerContent">
+          <div class="empty-state">Play matches to see career stats</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- HISTORY -->
+
+<div id="historyScreen" class="screen" style="padding:24px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:700">Match History</div>
+      <button class="btn btn-primary btn-sm" onclick="showScreen('setupScreen')">+ New Match</button>
+      <button class="btn btn-ghost btn-sm" onclick="promptImportCode()">📥 Import Match</button>
+      <button class="btn btn-ghost btn-sm" onclick="openMyShares()">📤 My Shares</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="clearHistory()">🗑 Clear All</button>
+    </div>
+    <div class="history-grid" id="historyGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div style="font-size:32px;margin-bottom:8px">📋</div>No matches played yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- SERIES SCREEN -->
+<div id="seriesScreen" class="screen">
+  <div class="series-header-bar">
+    <div>
+      <div class="series-title-big" id="seriesTitleDisplay">Series</div>
+      <div class="series-subtitle" id="seriesSubtitleDisplay"></div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('historyScreen')">📋 Match History</button>
+      <button class="btn btn-ghost btn-sm" onclick="shareSeries()">🔗 Share Series</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmEndSeries()">✕ End Series</button>
+    </div>
+  </div>
+  <div class="series-body">
+    <!-- Points Table -->
+    <div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="card-title" style="padding:14px 16px;margin-bottom:0;border-bottom:1px solid var(--border)">📊 Points Table</div>
+        <div id="seriesPointsTable"></div>
+      </div>
+      <!-- Series Stats -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-title" style="margin-bottom:12px">🏆 Caps &amp; Top Performers</div>
+        <div id="seriesTopPerformers"></div>
+      </div>
+    </div>
+    <!-- Fixtures -->
+    <div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="card-title" style="padding:14px 16px;margin-bottom:0;border-bottom:1px solid var(--border)">📋 Fixtures &amp; Results</div>
+        <div id="seriesFixtures"></div>
+      </div>
+      <div style="margin-top:14px" id="seriesNextMatchArea"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Series Result Overlay -->
+<div class="series-result-overlay" id="seriesResultOverlay">
+  <div class="series-result-card">
+    <div class="ser-trophy">🏆</div>
+    <div class="ser-champion" id="serChampion">Champion</div>
+    <div class="ser-sub" id="serSubline">wins the series</div>
+    <div style="overflow-x:auto"><table class="ser-final-table" id="serFinalTable"></table></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="endSeriesAndReset()">🏠 New Match / Series</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('seriesResultOverlay').classList.remove('show');goToSeriesScreen()">📊 View Table</button>
+    </div>
+  </div>
+</div>
+
+<!-- Innings Summary Overlay -->
+<div class="innings-summary-overlay" id="inningsSummaryOverlay">
+  <div class="innings-summary-card">
+    <div class="is-title" id="isSummaryTitle">Innings Complete</div>
+    <div class="is-score" id="isSummaryScore">0/0</div>
+    <div class="is-details" id="isSummaryDetails"></div>
+    <div class="is-target">
+      <div class="is-target-lbl">Target for 2nd Innings</div>
+      <div class="is-target-val" id="isTargetVal">—</div>
+    </div>
+    <div id="is1stPerf" style="margin-bottom:16px;text-align:left"></div>
+    <button class="btn btn-primary" style="width:100%" id="isStartNextBtn" onclick="startSecondInnings()">Start 2nd Innings →</button>
+  </div>
+</div>
+
+<!-- Follow-On Decision Overlay (Test matches only) -->
+<div class="innings-summary-overlay" id="followOnOverlay">
+  <div class="innings-summary-card">
+    <div class="is-title">🏳️ Follow-On Available</div>
+    <div class="is-details" id="followOnLeadText" style="margin-bottom:18px"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="decideFollowOn(true)">Enforce Follow-On</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="decideFollowOn(false)">Bat Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Match Result Overlay -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="result-trophy">🏆</div>
+    <div class="result-winner" id="resultWinner">Team Alpha</div>
+    <div class="result-margin" id="resultMargin">won</div>
+    <div class="result-stats" id="resultStats"></div>
+    <div id="resultPerf" style="margin-bottom:16px;text-align:left"></div>
+    <div style="display:flex;gap:10px" id="resultButtons">
+      <button class="btn btn-primary" style="flex:1" id="resultPrimaryBtn" onclick="saveMatchAndNew()">Save & New Match</button>
+      <button class="btn btn-secondary" style="flex:1" id="resultSecondaryBtn" onclick="viewHistoryFromResult()">View History</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px" onclick="shareCurrentResult()">🔗 Share this match</button>
+  </div>
+</div>
+
+<!-- Share Link Overlay -->
+<div class="history-detail-overlay" id="shareLinkOverlay" style="z-index:220">
+  <div class="history-detail-card" style="max-width:420px;text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">🔗</div>
+    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px">Share this match</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Send this link — when they open it signed into their own account, this match's full scorecard and stats get added to their History & Records.</div>
+    <div id="shareQrCode" style="display:flex;justify-content:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:var(--r-sm);width:fit-content;margin-left:auto;margin-right:auto"></div>
+    <input id="shareLinkInput" readonly style="width:100%;padding:10px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;text-align:center;margin-bottom:12px" onclick="this.select()">
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1" onclick="copyShareLink()">📋 Copy Link</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeShareLinkOverlay()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Shares Modal -->
+<div class="history-detail-overlay" id="mySharesModal" style="z-index:220">
+  <div class="history-detail-card" style="max-width:460px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700">📤 My Shares</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeMySharesModal()">✕</button>
+    </div>
+    <div id="mySharesBody" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- History Match Detail Overlay -->
+<div class="history-detail-overlay" id="historyDetailOverlay">
+  <div class="history-detail-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px">
+      <div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:700" id="hdTeams">Team A vs Team B</div>
+        <div style="font-size:12px;color:var(--text-muted)" id="hdDate"></div>
+        <div style="font-size:13px;color:var(--accent2);margin-top:4px" id="hdResult"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="shareHistoryMatch()">🔗 Share</button>
+        <button class="btn btn-ghost btn-sm" id="hdDeleteBtn" onclick="deleteHistoryMatch()" style="color:var(--red)">🗑 Delete</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeHistoryDetail()">✕ Close</button>
+      </div>
+    </div>
+    <div id="hdInningsContainer"></div>
+  </div>
+</div>
+
+<!-- Wicket Modal -->
+<div class="wicket-modal" id="wicketModal">
+  <div class="wm-card">
+    <div class="wm-title">🚨 Wicket!</div>
+    <div id="wicketVictimChooser" style="display:none;margin-bottom:16px">
+      <p style="text-align:center;color:var(--text-muted);margin-bottom:8px;font-size:14px">Who got out?</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-primary" id="wicketVictimStrikerBtn" onclick="selectWicketVictim('striker')">Striker</button>
+        <button class="btn btn-secondary" id="wicketVictimNonStrikerBtn" onclick="selectWicketVictim('nonStriker')">Non-Striker</button>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--text-muted);margin-bottom:16px;font-size:14px">How was the batsman dismissed?</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      <button class="btn btn-secondary" onclick="confirmWicket('Bowled')">Bowled</button>
+      <button class="btn btn-secondary" onclick="confirmWicket('Caught')">Caught</button>
+      <button class="btn btn-secondary" onclick="confirmWicket('LBW')">LBW</button>
+      <button class="btn btn-secondary" onclick="confirmWicket('Run Out')">Run Out</button>
+      <button class="btn btn-secondary" onclick="confirmWicket('Stumped')">Stumped</button>
+      <button class="btn btn-secondary" onclick="confirmWicket('Hit Wicket')">Hit Wicket</button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="document.getElementById('wicketModal').classList.remove('show')">Cancel</button>
+  </div>
+</div>
+
+<!-- Voice Settings Modal -->
+<div class="wicket-modal" id="voiceSettingsModal">
+  <div class="wm-card" style="border-color:var(--accent);max-width:340px">
+    <div class="wm-title" style="color:var(--accent)">🎙️ Voice Settings</div>
+
+    <div style="margin-bottom:14px">
+      <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:4px">
+        <span>Speaking Speed</span><span id="voiceRateLabel">1.0×</span>
+      </label>
+      <input type="range" id="voiceRateInput" min="0.5" max="2" step="0.1" value="1"
+        style="width:100%" oninput="document.getElementById('voiceRateLabel').textContent = parseFloat(this.value).toFixed(1) + '×'">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:4px">
+        <span>Volume</span><span id="voiceVolumeLabel">100%</span>
+      </label>
+      <input type="range" id="voiceVolumeInput" min="0" max="1" step="0.05" value="1"
+        style="width:100%" oninput="document.getElementById('voiceVolumeLabel').textContent = Math.round(this.value*100) + '%'">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px">Voice</label>
+      <select id="voiceGenderInput" class="form-input" style="width:100%">
+        <option value="auto">Auto</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <label style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:4px">
+        <span>Confidence Threshold</span><span id="voiceConfidenceLabel">50%</span>
+      </label>
+      <input type="range" id="voiceConfidenceInput" min="0" max="0.9" step="0.05" value="0.5"
+        style="width:100%" oninput="document.getElementById('voiceConfidenceLabel').textContent = Math.round(this.value*100) + '%'">
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Higher = fewer misheard commands, but may miss quiet speech.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-ghost" onclick="closeVoiceSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVoiceSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Player Picker Modal -->
+<div class="player-modal" id="playerPickerModal">
+  <div class="pm-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700" id="playerPickerTitle">Players</div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('playerPickerModal').classList.remove('show')">✕</button>
+    </div>
+    <div id="playerPickerList"></div>
+  </div>
+</div>
+
+<!-- Player Detail Modal -->
+<div class="player-modal" id="playerDetailModal">
+  <div class="pm-card" id="playerDetailContent"></div>
+</div>
+
+<!-- Career Player Profile Dashboard Modal (full analytics dashboard) -->
+<div class="cp-modal" id="careerProfileModal">
+  <div class="cp-card">
+    <div id="careerProfileHead"></div>
+    <div class="cp-tabs" id="careerProfileTabs"></div>
+    <div id="careerProfilePanels"></div>
+  </div>
+</div>
+
+<!-- Head-to-Head Comparison Modal -->
+<div class="player-modal" id="headToHeadModal">
+  <div class="pm-card" style="max-width:520px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700">⚔️ Head-to-Head</div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('headToHeadModal').classList.remove('show')">✕</button>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+      <select id="h2hPlayerA" class="career-search-input" style="flex:1"></select>
+      <div style="font-weight:700;color:var(--text-dim)">vs</div>
+      <select id="h2hPlayerB" class="career-search-input" style="flex:1"></select>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:16px" onclick="renderHeadToHead()">Compare</button>
+    <div id="h2hResults"></div>
+  </div>
+</div>
+
+<!-- Team Picker Modal -->
+<div class="player-modal" id="teamPickerModal">
+  <div class="pm-card" style="max-width:320px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700">Select Team</div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('teamPickerModal').classList.remove('show')">✕</button>
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;text-align:center">Which team's player do you want to view?</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" id="teamPickerBtnA" onclick="showPlayerPickerForTeam('A')">🏏 Team A</button>
+      <button class="btn btn-secondary" id="teamPickerBtnB" onclick="showPlayerPickerForTeam('B')">🎯 Team B</button>
+    </div>
+  </div>
+</div>
+
+<!-- Milestone Celebration Banner -->
+<div class="milestone-banner" id="milestoneBanner">🎉</div>
+<div class="toast-banner" id="toastBanner"></div>
+
+<!-- Firebase — Google Sign-In + Firestore cloud sync -->
+
+<!-- Firebase — Google Sign-In + Firestore cloud sync -->
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- App scripts, loaded in dependency order (classic scripts, not modules,
+     so top-level state defined in one file is available to later files —
+     exactly as it was in the original single inline <script>). -->
+<script src="./js/config.js"></script>
+<script src="./js/state.js"></script>
+<script src="./js/storage.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/sharing.js"></script>
+<script src="./js/voice.js"></script>
+<script src="./js/authentication.js"></script>
+<script src="./js/setup.js"></script>
+<script src="./js/navigation.js"></script>
+<script src="./js/scoring.js"></script>
+<script src="./js/scorecard.js"></script>
+<script src="./js/innings.js"></script>
+<script src="./js/records.js"></script>
+<script src="./js/history.js"></script>
+<script src="./js/statistics.js"></script>
+<script src="./js/series.js"></script>
+<script src="./js/utils.js"></script>
+<script src="./js/app.js"></script>
+<footer style="text-align:center; padding:24px 16px 32px; color:var(--text-dim); font-size:12px; border-top:1px solid var(--border); margin-top:20px;">
+  Crickscorer &copy; 2026 &middot; Designed &amp; built by
+  <a href="https://github.com/" target="_blank" rel="author noopener" style="color:var(--accent); text-decoration:none; font-weight:600;">Vadije Prashvith Nandan Rao</a>
+</footer>
+
+</body>
+</html>
